@@ -1,0 +1,24 @@
+{
+  "name": "opencode-ralph-loop-v2",
+  "version": "0.1.0",
+  "description": "A standalone OpenCode v2 rewrite of charfeng1's Ralph Loop plugin",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src/",
+    "skills/",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/index.js"
+  },
+  "license": "MIT"
+}

@@ -1,0 +1,27 @@
+# Test-only CI. Deliberately NOT upstream's release.yml: their OIDC trusted
+# publishing is configured for the `opencode-ralph-loop` npm package and their
+# repo. Configure a publisher for this repo before adding a publish job.
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # engines says >=22.13.0; latest 22.x and 24.x satisfy it.
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm run check
+      - run: npm test
