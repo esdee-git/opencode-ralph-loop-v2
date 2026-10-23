@@ -12,6 +12,8 @@ async function fixture(t) {
   const commands = new Map();
   const prompts = [];
   let receive;
+  let ackResolve;
+  let ack = new Promise((resolve) => { ackResolve = resolve; });
   let messages = [{ type: "assistant", content: [{ type: "text", text: "Working" }] }];
   const ctx = {
     location: { directory },
@@ -23,7 +25,12 @@ async function fixture(t) {
     },
     event: {
       subscribe: () => ({
-        [Symbol.asyncIterator]: () => ({ next: () => new Promise((resolve) => { receive = resolve; }) }),
+        [Symbol.asyncIterator]: () => ({
+          next: () => {
+            ackResolve();
+            return new Promise((resolve) => { receive = resolve; });
+          },
+        }),
       }),
     },
   };
@@ -33,8 +40,10 @@ async function fixture(t) {
     await rm(directory, { recursive: true, force: true });
   });
   async function emit(type, sessionID, location = { directory }) {
+    await ack;
+    ack = new Promise((resolve) => { ackResolve = resolve; });
     receive({ value: { type, location, data: { sessionID } }, done: false });
-    await new Promise((resolve) => setTimeout(resolve, 20));
+    await ack;
   }
   return {
     path, tools, commands, prompts, emit,
